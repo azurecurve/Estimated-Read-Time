@@ -16,7 +16,9 @@ There is only a single setting: the reading speed. To change the reading speed, 
 
 # Usage
 
-To provide the most versatile placement options, the estimated read time display is implemented with a shortcode that is designed to be placed in your _theme template_ files. It may require some experimenting to find just the right templates for your particular theme, but you can try the `content.php`, `single.php`, `archive.php`, and `page.php` templates as a starting point. See the examples below and place one or the other into your theme's template files wherever you would like the estimated read time to be displayed.
+To provide the most versatile placement options, the estimated read time display is implemented with a shortcode that is designed to be placed in your _theme template_ files. It may require some experimenting to find just the right templates for your particular theme, but you can try the `content.php`, `single.php`, `archive.php`, and `page.php` templates as a starting point.
+
+Note that the shortcode is designed to work in templates that are **in the loop**, so you won't be able to place the shortcode in, say, your `header.php` or `footer.php` files. See the examples below and place _one or the other_ into your theme's template file(s) where you would like the estimated read time to be displayed.
 
 ### Example 1: Minimal template shortcode
 
