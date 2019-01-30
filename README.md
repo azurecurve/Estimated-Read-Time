@@ -2,6 +2,8 @@
 
 The **Estimated Read Time** plugin for ClassicPress allows you to display expected reading times on your articles and summaries. The average person reads at 200 words per minute, so, that's the default setting. You can change it with a simple filter to suit your own audience and content.
 
+![Img](https://static.codepotent.com/images/github/estimated-read-time/estimated-read-time-mockup.png)
+
 # Installation
 
 * Download the [package](https://github.com/johnalarcon/estimated-read-time/archive/master.zip) to your local computer.
