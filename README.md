@@ -27,3 +27,12 @@ Note that the shortcode is designed to work in templates that are **in the loop*
 ### Example 2: Template shortcode with dashicon
 
 `<span class="dashicons dashicons-clock"></span> <?php echo do_shortcode('[estimated-read-time words="'.str_word_count(strip_tags(get_the_content())).'"]'); ?>`
+
+# Important Note on Updating your Theme
+
+If you are using a theme that is a _parent theme_ (as opposed to a _child theme_) you will need to be cautious about updating your theme because the update will overwrite all the theme files. To avoid this, you have 3 options, as follows. Options are listed in the order of preference.
+
+1. use a child theme and add your shortcodes to your child theme's templates, or
+2. use a theme that you built yourself to avoid surprise updates, or
+3. carefully copy your shortcodes out of your theme files before updating, then replacing them afterward, or
+4. continue using the parent theme, but don't update it.
