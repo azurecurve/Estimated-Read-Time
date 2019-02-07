@@ -22,11 +22,11 @@ Note that the shortcode is designed to work in templates that are **in the loop*
 
 ### Example 1: Minimal template shortcode
 
-`<?php echo do_shortcode('[estimated-read-time words="'.str_word_count(strip_tags(get_the_content())).'"]'); ?>`
+`<?php echo do_shortcode('[estimated-read-time words="'.str_word_count(strip_tags($post->post_content)).'"]'); ?>`
 
 ### Example 2: Template shortcode with dashicon
 
-`<span class="dashicons dashicons-clock"></span> <?php echo do_shortcode('[estimated-read-time words="'.str_word_count(strip_tags(get_the_content())).'"]'); ?>`
+`<span class="dashicons dashicons-clock"></span> <?php echo do_shortcode('[estimated-read-time words="'.str_word_count(strip_tags($post->post_content)).'"]'); ?>`
 
 # Important Note on Updating your Theme
 
