@@ -4,7 +4,7 @@
  * -----------------------------------------------------------------------------
  * Plugin Name: Estimated Read Time
  * Description: Displays estimated read-times for articles on the homepage, in search results, on category and tag pages, on date and author archive pages, and individual posts and pages.
- * Version: 0.2.0
+ * Version: 0.2.1
  * Author: azurecurve
  * Author URI: https://dev.azrcrv.co.uk/classicpress-plugins
  * Plugin URI: https://dev.azrcrv.co.uk/classicpress-plugins
@@ -29,6 +29,9 @@ namespace CodePotent\EstimatedReadTime;
 if (!defined('ABSPATH')) {
 	die();
 }
+
+// Include constants file.
+require_once(plugin_dir_path(__FILE__).'includes/constants.php');
 
 // Include update client.
 require_once(plugin_dir_path(__FILE__).'classes/UpdateClient.class.php');
@@ -84,11 +87,11 @@ function process_shortcode($atts) {
 }
 
 // POST-ADOPTION: Remove these actions before pushing your next update.
-add_action('upgrader_process_complete', 'codepotent_enable_adoption_notice', 10, 2);
-add_action('admin_notices', 'codepotent_display_adoption_notice');
+add_action('upgrader_process_complete', __NAMESPACE__.'\enable_adoption_notice', 10, 2);
+add_action('admin_notices', __NAMESPACE__.'\display_adoption_notice');
 
 // POST-ADOPTION: Remove this function before pushing your next update.
-function codepotent_enable_adoption_notice($upgrader_object, $options) {
+function enable_adoption_notice($upgrader_object, $options) {
 	if ($options['action'] === 'update') {
 		if ($options['type'] === 'plugin') {
 			if (!empty($options['plugins'])) {
@@ -101,7 +104,7 @@ function codepotent_enable_adoption_notice($upgrader_object, $options) {
 }
 
 // POST-ADOPTION: Remove this function before pushing your next update.
-function codepotent_display_adoption_notice() {
+function display_adoption_notice() {
 	if (get_transient(PLUGIN_PREFIX.'_adoption_complete')) {
 		delete_transient(PLUGIN_PREFIX.'_adoption_complete');
 		echo '<div class="notice notice-success is-dismissible">';
