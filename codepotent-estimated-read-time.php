@@ -4,11 +4,11 @@
  * -----------------------------------------------------------------------------
  * Plugin Name: Estimated Read Time
  * Description: Displays estimated read-times for articles on the homepage, in search results, on category and tag pages, on date and author archive pages, and individual posts and pages.
- * Version: 0.2.1
+ * Version: 1.0.0
  * Author: azurecurve
  * Author URI: https://dev.azrcrv.co.uk/classicpress-plugins
  * Plugin URI: https://dev.azrcrv.co.uk/classicpress-plugins
- * Text Domain: codepotent-estimated-read-time
+ * Text Domain: estimated-read-time
  * Domain Path: /languages
  * -----------------------------------------------------------------------------
  * This is free software released under the terms of the General Public License,
@@ -17,6 +17,7 @@
  * text of the license is available at https://www.gnu.org/licenses/gpl-2.0.txt.
  * -----------------------------------------------------------------------------
  * Copyright 2021, John Alarcon (Code Potent)
+ * Copyright 2021, Ian Grieve (azurecurve)
  * -----------------------------------------------------------------------------
  * Adopted by azurecurve, 06/01/2021
  * -----------------------------------------------------------------------------
@@ -30,14 +31,210 @@ if (!defined('ABSPATH')) {
 	die();
 }
 
+// include plugin menu
+require_once(dirname( __FILE__).'/pluginmenu/menu.php');
+add_action('admin_init', 'azrcrv_create_plugin_menu_ert');
+
 // Include constants file.
 require_once(plugin_dir_path(__FILE__).'includes/constants.php');
 
 // Include update client.
 require_once(plugin_dir_path(__FILE__).'classes/UpdateClient.class.php');
 
+// Add action to load languages
+add_action('plugins_loaded', __NAMESPACE__.'\\load_languages');
+
+// add filter to add plugin action link
+add_filter('plugin_action_links', __NAMESPACE__.'\\add_plugin_action_link', 10, 2);
+
+// Add action to create admin menu
+add_action('admin_menu', __NAMESPACE__.'\\create_admin_menu');
+
+// Add action to save options
+add_action('admin_post_azrcrv_ert_save_options', __NAMESPACE__.'\\save_options');
+
 // Add action to process shortcodes.
-add_shortcode('estimated-read-time', __NAMESPACE__.'\process_shortcode');
+add_shortcode('estimated-read-time', __NAMESPACE__.'\\process_shortcode');
+
+/**
+ * Load language files.
+ *
+ * @author Ian Grieve
+ *
+ * @since 1.0.0
+ *
+ */
+function load_languages() {
+    $plugin_rel_path = basename(dirname(__FILE__)).'/languages';
+    load_plugin_textdomain('estimated-read-time', false, $plugin_rel_path);
+}
+
+/**
+ * Add action link on plugins page.
+ *
+ * @author Ian Grieve
+ *
+ * @since 1.0.0
+ *
+ */
+function add_plugin_action_link($links, $file){
+	static $this_plugin;
+
+	if (!$this_plugin){
+		$this_plugin = plugin_basename(__FILE__);
+	}
+
+	if ($file == $this_plugin){
+		$settings_link = '<a href="'.admin_url('admin.php?page=azrcrv-ert').'"><img src="'.plugins_url('/pluginmenu/images/logo.svg', __FILE__).'" style="padding-top: 2px; margin-right: -5px; height: 16px; width: 16px;" alt="azurecurve" />'.esc_html__('Settings' ,'estimated-read-time').'</a>';
+		array_unshift($links, $settings_link);
+	}
+
+	return $links;
+}
+
+/**
+ * Add to menu.
+ *
+ * @author Ian Grieve
+ *
+ * @since 1.0.0
+ *
+ */
+function create_admin_menu(){
+	add_submenu_page("azrcrv-plugin-menu"
+						,esc_html__("Estimated Read Time", "estimated-read-time")
+						,esc_html__("Estimated Read Time", "estimated-read-time")
+						,'manage_options'
+						,'azrcrv-ert'
+						,__NAMESPACE__.'\\display_options');
+}
+
+/**
+ * Get options with defaults.
+ *
+ * @author Ian Grieve
+ *
+ * @since 1.0.0
+ *
+ */
+function get_option_with_defaults($option_name){
+ 
+	$defaults = array(
+						'estimated-reading-speed' => 200,
+					);
+
+	$options = get_option($option_name, $defaults);
+
+	$options = wp_parse_args($options, $defaults);
+
+	return $options;
+
+}
+
+/**
+ * Display Settings page.
+ *
+ * @author Ian Grieve
+ *
+ * @since 1.0.0
+ *
+ */
+function display_options(){
+	if (!current_user_can('manage_options')){
+        wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'estimated-read-time'));
+    }
+	
+	global $wpdb;
+	
+	// Retrieve plugin configuration options from database
+	$options = get_option_with_defaults('azrcrv-ert');
+	
+	?>
+	<div id="azrcrv-ert-general" class="wrap">
+		<h1>
+			<?php
+				echo '<a href="https://development.azurecurve.co.uk/classicpress-plugins/"><img src="'.plugins_url('/pluginmenu/images/logo.svg', __FILE__).'" style="padding-right: 6px; height: 20px; width: 20px;" alt="azurecurve" /></a>';
+				esc_html_e(get_admin_page_title());
+			?>
+		</h1>
+		<?php
+			if(isset($_GET['settings-updated'])){ ?>
+				<div class="notice notice-success is-dismissible">
+					<p><strong><?php esc_html_e('Settings have been saved.', 'estimated-read-time'); ?></strong></p>
+				</div>
+		<?php } ?>
+		
+		<div>
+		
+			<form method="post" action="admin-post.php">
+				
+				<fieldset>
+				
+					<input type="hidden" name="action" value="azrcrv_ert_save_options" />
+					<input name="page_options" type="hidden" value="estimated-reading-speed" />
+					
+					<!-- Adding security through hidden referrer field -->
+					<?php wp_nonce_field('azrcrv-ert', 'azrcrv-ert-nonce'); ?>
+					
+					<table class="form-table">
+					
+						<tr>
+							<th scope="row">
+								<label for="estimated-reading-speed">
+									<?php esc_html_e('Estimated Reading Speed', 'estimated-read-time'); ?>
+								</label>
+							</th>
+							<td>
+								<input name="estimated-reading-speed" type="number" step="5" min="10" id="estimated-reading-speed" value="<?php echo stripslashes($options['estimated-reading-speed']); ?>" class="small-text" />
+								<p class="description"><?php esc_html_e('A standard estimated read speed is approximately 200 words per minute; for more technical content, 100 would be common.', 'estimated-read-time'); ?></p>
+							</td>
+						</tr>
+						
+					</table>
+					
+				</fieldset>
+				
+				<input type="submit" value="<?php esc_html_e('Save Changes', 'estimated-read-time'); ?>" class="button-primary"/>
+				
+			</form>
+		</div>
+	</div>
+	
+	<?php
+}
+
+/**
+ * Save settings.
+ *
+ * @author Ian Grieve
+ *
+ * @since 1.0.0
+ *
+ */
+function save_options(){
+	// Check that user has proper security level
+	if (!current_user_can('manage_options')){
+		wp_die(esc_html__('You do not have permissions to perform this action', 'estimated-read-time'));
+	}
+	// Check that nonce field created in configuration form is present
+	if (! empty($_POST) && check_admin_referer('azrcrv-ert', 'azrcrv-ert-nonce')){
+	
+		// Retrieve original plugin options array
+		$options = get_option('azrcrv-ert');
+		
+		$option_name = 'estimated-reading-speed';
+		if (isset($_POST[$option_name])){
+			$options[$option_name] = sanitize_text_field(intval($_POST[$option_name]));
+		}
+		
+		// Store updated options array to database
+		update_option('azrcrv-ert', $options);
+		
+		// Redirect the page to the configuration form that was processed
+		wp_redirect(add_query_arg('page', 'azrcrv-ert&settings-updated', admin_url('admin.php')));
+		exit;
+	}
+}
 
 /**
  * Process shortcode.
@@ -63,9 +260,12 @@ function process_shortcode($atts) {
 				$defaults,
 				$atts,
 				'estimated-read-time');
-
+				
+	// get plugin options with defaults
+	$options = get_option_with_defaults('azrcrv-ert');
+	
 	// Reading speed; 200 wpm is average; use lower for more technical content.
-	$reading_speed = apply_filters('codepotent_estimated_read_time_speed', 100);
+	$reading_speed = apply_filters('codepotent_estimated_read_time_speed', $options['estimated-reading-speed']);
 
 	// Read time in minutes; rounded up to nearest minute.
 	$reading_time = ceil( (int)$atts['words'] / $reading_speed );
@@ -84,34 +284,4 @@ function process_shortcode($atts) {
 	// Return estimated time string.
 	return $markup;
 
-}
-
-// POST-ADOPTION: Remove these actions before pushing your next update.
-add_action('upgrader_process_complete', __NAMESPACE__.'\enable_adoption_notice', 10, 2);
-add_action('admin_notices', __NAMESPACE__.'\display_adoption_notice');
-
-// POST-ADOPTION: Remove this function before pushing your next update.
-function enable_adoption_notice($upgrader_object, $options) {
-	if ($options['action'] === 'update') {
-		if ($options['type'] === 'plugin') {
-			if (!empty($options['plugins'])) {
-				if (in_array(plugin_basename(__FILE__), $options['plugins'])) {
-					set_transient(PLUGIN_PREFIX.'_adoption_complete', 1);
-				}
-			}
-		}
-	}
-}
-
-// POST-ADOPTION: Remove this function before pushing your next update.
-function display_adoption_notice() {
-	if (get_transient(PLUGIN_PREFIX.'_adoption_complete')) {
-		delete_transient(PLUGIN_PREFIX.'_adoption_complete');
-		echo '<div class="notice notice-success is-dismissible">';
-		echo '<h3 style="margin:25px 0 15px;padding:0;color:#e53935;">IMPORTANT <span style="color:#aaa;">information about the <strong style="color:#333;">'.PLUGIN_NAME.'</strong> plugin</h3>';
-		echo '<p style="margin:0 0 15px;padding:0;font-size:14px;">The <strong>'.PLUGIN_NAME.'</strong> plugin has been officially adopted and is now managed by <a href="'.PLUGIN_AUTHOR_URL.'" rel="noopener" target="_blank" style="text-decoration:none;">'.PLUGIN_AUTHOR.'<span class="dashicons dashicons-external" style="display:inline;font-size:98%;"></span></a>, a longstanding and trusted ClassicPress developer and community member. While it has been wonderful to serve the ClassicPress community with free plugins, tutorials, and resources for nearly 3 years, it\'s time that I move on to other endeavors. This notice is to inform you of the change, and to assure you that the plugin remains in good hands. I\'d like to extend my heartfelt thanks to you for making my plugins a staple within the community, and wish you great success with ClassicPress!</p>';
-		echo '<p style="margin:0 0 15px;padding:0;font-size:14px;font-weight:600;">All the best!</p>';
-		echo '<p style="margin:0 0 15px;padding:0;font-size:14px;">~ John Alarcon <span style="color:#aaa;">(Code Potent)</span></p>';
-		echo '</div>';
-	}
 }
