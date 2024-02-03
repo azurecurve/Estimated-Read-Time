@@ -2,14 +2,18 @@
 
 /**
  * -----------------------------------------------------------------------------
- * Plugin Name: Estimated Read Time
- * Description: Displays estimated read-times for articles on the homepage, in search results, on category and tag pages, on date and author archive pages, and individual posts and pages.
- * Version: 1.0.0
- * Author: azurecurve
- * Author URI: https://dev.azrcrv.co.uk/classicpress-plugins
- * Plugin URI: https://dev.azrcrv.co.uk/classicpress-plugins
- * Text Domain: estimated-read-time
- * Domain Path: /languages
+ * Plugin Name:		Estimated Read Time
+ * Description:		Displays estimated read-times for articles on the homepage, in search results, on category and tag pages, on date and author archive pages, and individual posts and pages.
+ * Version:			1.0.1
+ * Requires CP:		1.0
+ * Author:			azurecurve
+ * Author URI:		https://dev.azrcrv.co.uk/classicpress-plugins
+ * Plugin URI:		https://dev.azrcrv.co.uk/classicpress-plugins
+ * Donate link:		https://development.azurecurve.co.uk/support-development/
+ * Text Domain:		estimated-read-time
+ * Domain Path:		/languages
+ * License:			GPLv2 or later
+ * License URI:		http://www.gnu.org/licenses/gpl-2.0.html
  * -----------------------------------------------------------------------------
  * This is free software released under the terms of the General Public License,
  * version 2, or later. It is distributed WITHOUT ANY WARRANTY; without even the
