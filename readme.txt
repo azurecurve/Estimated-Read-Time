@@ -66,6 +66,9 @@ This plugin is developed for ClassicPress, but will likely work on WordPress.
 
 # Changelog
 
+### [Version 1.0.2](https://github.com/azurecurve/Estimated-Read-Time/releases/1.0.2/)
+ * Update plugin header for compatibility with ClasssicPress v2.
+ 
 ### [Version 1.0.1](https://github.com/azurecurve/Estimated-Read-Time/releases/1.0.1/)
  * Update plugin header and readme for compatibility with ClassicPress Directory v2.
  * Update Update Manager to version 2.5.0.
